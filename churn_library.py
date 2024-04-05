@@ -1,12 +1,26 @@
 # library doc string
 
-
-# import libraries
-import os
+from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import normalize
+import shap
+import joblib
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 import yaml
 import logging
+import os
 
+sns.set()
+
+# Debbaging for matplotlib
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+
 
 # Load configurations from config.yaml
 with open('config.yaml', 'r', encoding='utf-8') as f:
@@ -30,7 +44,8 @@ def import_data(pth):
     output:
             df: pandas dataframe
     '''
-    pass
+    df = pd.read_csv(pth)
+    return df
 
 
 def perform_eda(df):
@@ -127,4 +142,4 @@ def train_models(X_train, X_test, y_train, y_test):
 
 
 if __name__ == '__main__':
-    pass
+    df = import_data(config['data']['csv_path'])
