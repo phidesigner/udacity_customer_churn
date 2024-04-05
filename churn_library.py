@@ -3,8 +3,22 @@
 
 # import libraries
 import os
-os.environ['QT_QPA_PLATFORM']='offscreen'
+import yaml
+import logging
 
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+
+# Load configurations from config.yaml
+with open('config.yaml', 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+
+# Set up logging
+logging.basicConfig(
+    filename=config['logging']['filename_main'],
+    filemode='w',
+    format=config['logging']['format'],
+    level=config['logging']['level_main']
+)
 
 
 def import_data(pth):
@@ -15,8 +29,8 @@ def import_data(pth):
             pth: a path to the csv
     output:
             df: pandas dataframe
-    '''	
-	pass
+    '''
+    pass
 
 
 def perform_eda(df):
@@ -28,7 +42,7 @@ def perform_eda(df):
     output:
             None
     '''
-	pass
+    pass
 
 
 def encoder_helper(df, category_lst, response):
@@ -59,6 +73,7 @@ def perform_feature_engineering(df, response):
               y_train: y training data
               y_test: y testing data
     '''
+
 
 def classification_report_image(y_train,
                                 y_test,
@@ -96,6 +111,7 @@ def feature_importance_plot(model, X_data, output_pth):
     '''
     pass
 
+
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
@@ -107,4 +123,8 @@ def train_models(X_train, X_test, y_train, y_test):
     output:
               None
     '''
+    pass
+
+
+if __name__ == '__main__':
     pass
