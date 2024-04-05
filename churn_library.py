@@ -1,6 +1,6 @@
 # library doc string
 
-from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.metrics import RocCurveDisplay, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
