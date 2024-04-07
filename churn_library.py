@@ -22,9 +22,12 @@ sns.set()
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
-# Load configurations from config.yaml
-with open('config.yaml', 'r', encoding='utf-8') as f:
-    config = yaml.safe_load(f)
+try:
+    with open('config.yaml', 'r', encoding='utf-8') as file:
+        config = yaml.safe_load(file)
+except Exception as e:
+    print(f"Error loading the config file: {e}")
+    sys.exit(1)
 
 # Set up logging
 logging.basicConfig(
@@ -46,22 +49,82 @@ def import_data(pth):
     '''
     try:
         df = pd.read_csv(pth)
+        logging.info("Data loaded successfully from %s", pth)
         return df
-    except pd.errors.EmptyDataError:
-        print(f"EmptyDataError: No columns to parse from file {pth}")
-        return pd.DataFrame()
+    except FileNotFoundError:
+        logging.error("File not found at %s", pth)
+        sys.exit(1)
+    except pd.errors.EmptyDataError as e:
+        logging.error("No columns to parse from file %s", pth)
+        sys.exit(1)
+    except Exception as e:
+        logging.error("Unexpected error occurred while importing data: %s", e)
+        sys.exit(1)
 
 
 def perform_eda(df):
     '''
-    perform eda on df and save figures to images folder
-    input:
-            df: pandas dataframe
+    Perform EDA on df and save figures to images folder as specified in config.
 
-    output:
-            None
+    Input:
+        df: pandas DataFrame to perform EDA on.
+
+    Output:
+        None: The function saves the EDA plots to files but does not return any value.
     '''
-    pass
+    eda_path = config['EDA']['path']
+    if not os.path.exists(eda_path):
+        os.makedirs(eda_path)
+        logging.info("%s directory created for EDA output.", eda_path)
+        # Log Descriptive Statistics
+    try:
+        descriptive_stats = df.describe()
+        logging.info(f"Descriptive Statistics:\n{descriptive_stats}")
+        # Consider saving to a file if needed
+    except Exception as e:
+        logging.error(f"Failed to generate descriptive statistics: {e}")
+
+    # Feature engineering for churn column
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+
+    try:
+        # Histogram for Churn
+        plt.figure(figsize=(20, 10))
+        df['Churn'].hist()
+        plt.savefig(os.path.join(eda_path, 'churn_histogram.png'))
+        plt.close()
+
+        # Customer Age Histogram
+        plt.figure(figsize=(20, 10))
+        df['Customer_Age'].hist()
+        plt.savefig(os.path.join(eda_path, 'customer_age_histogram.png'))
+        plt.close()
+
+        # Marital Status Distribution
+        plt.figure(figsize=(20, 10))
+        df['Marital_Status'].value_counts(normalize=True).plot(kind='bar')
+        plt.savefig(os.path.join(eda_path, 'marital_status_distribution.png'))
+        plt.close()
+
+        # Total Transactions Distribution
+        plt.figure(figsize=(20, 10))
+        sns.histplot(df['Total_Trans_Ct'], kde=True, stat='density')
+        plt.savefig(os.path.join(eda_path, 'total_trans_ct_distribution.png'))
+        plt.close()
+
+        # Correlation Heatmap
+        plt.figure(figsize=(20, 10))
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        sns.heatmap(df[numeric_cols].corr(), annot=False,
+                    cmap='Dark2_r', linewidths=2)
+        plt.savefig(os.path.join(eda_path, 'correlation_heatmap.png'))
+        plt.close()
+
+        logging.info("EDA performed and plots saved.")
+
+    except Exception as e:
+        logging.error("Failed to perform EDA: %s", e)
 
 
 def encoder_helper(df, category_lst, response):
@@ -147,4 +210,8 @@ def train_models(X_train, X_test, y_train, y_test):
 
 
 if __name__ == '__main__':
-    df = import_data(config['data']['csv_path'])
+    try:
+        df = import_data(config['data']['csv_path'])
+        perform_eda(df)
+    except Exception as e:
+        logging.error("Error in main execution: %s", e)

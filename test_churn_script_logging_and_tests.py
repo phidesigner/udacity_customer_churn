@@ -19,7 +19,7 @@ logging.basicConfig(
     level=config['logging']['level_test']
 )
 
-### Test cases for Data Ingestion ###
+# Test cases for Data Ingestion #
 TEST_CSV_PATH = "./data/test_bank_data.csv"
 EMPTY_CSV_PATH = "./data/empty_test_data.csv"
 NON_EXISTENT_FILE = "./data/non_existent_file.csv"
@@ -88,7 +88,7 @@ def test_import_data_invalid_file(setup_invalid_file):
     with pytest.raises(pd.errors.ParserError):
         import_data(INVALID_FILE_PATH)
 
-### Test cases for EDA ###
+# Test cases for EDA #
 
 
 @pytest.mark.skip(reason="not yet implemented")
