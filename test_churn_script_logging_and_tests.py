@@ -19,8 +19,7 @@ logging.basicConfig(
     level=config['logging']['level_test']
 )
 
-
-# Assuming the test CSV files are located in the "./data" directory relative to this test script
+### Test cases for Data Ingestion ###
 TEST_CSV_PATH = "./data/test_bank_data.csv"
 EMPTY_CSV_PATH = "./data/empty_test_data.csv"
 NON_EXISTENT_FILE = "./data/non_existent_file.csv"
@@ -30,7 +29,8 @@ INVALID_FILE_PATH = "./data/test_not_csv.txt"
 @pytest.fixture(scope="module")
 def setup_empty_csv():
     """
-    Fixture to create an empty CSV file before tests run and remove it afterwards.
+    Fixture to create an empty CSV file before tests run and remove
+    it afterwards.
     """
     open(EMPTY_CSV_PATH, 'a').close()
     yield
@@ -42,8 +42,14 @@ def setup_invalid_file():
     """
     Fixture to create a non-CSV file before tests and remove it afterwards.
     """
+    malformed_content = '''ID,Name,Value
+    1,"Alice,2
+    3,"Bob",Unclosed quote
+    4,Ca"rol,Strange"Character
+    5,Dave,"Mismatched"Quotes",6
+    '''
     with open(INVALID_FILE_PATH, 'w') as f:
-        f.write("This is not a CSV file.")
+        f.write(malformed_content)
     yield
     os.remove(INVALID_FILE_PATH)
 
@@ -81,6 +87,8 @@ def test_import_data_invalid_file(setup_invalid_file):
     """
     with pytest.raises(pd.errors.ParserError):
         import_data(INVALID_FILE_PATH)
+
+### Test cases for EDA ###
 
 
 @pytest.mark.skip(reason="not yet implemented")

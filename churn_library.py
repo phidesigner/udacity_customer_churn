@@ -44,8 +44,12 @@ def import_data(pth):
     output:
             df: pandas dataframe
     '''
-    df = pd.read_csv(pth)
-    return df
+    try:
+        df = pd.read_csv(pth)
+        return df
+    except pd.errors.EmptyDataError:
+        print(f"EmptyDataError: No columns to parse from file {pth}")
+        return pd.DataFrame()
 
 
 def perform_eda(df):
@@ -63,7 +67,8 @@ def perform_eda(df):
 def encoder_helper(df, category_lst, response):
     '''
     helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the notebook
+    propotion of churn for each category - associated with cell 15 from the
+    notebook
 
     input:
             df: pandas dataframe
