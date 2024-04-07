@@ -1,5 +1,5 @@
 # Make sure to replace 'your_module' with the actual name of your module
-from churn_library import import_data
+from churn_library import import_data, perform_eda, encoder_helper, perform_feature_engineering, train_models
 import pytest
 import pandas as pd
 import os
@@ -91,11 +91,44 @@ def test_import_data_invalid_file(setup_invalid_file):
 # Test cases for EDA #
 
 
-@pytest.mark.skip(reason="not yet implemented")
-def test_eda(perform_eda):
-    '''
-    test perform eda function
-    '''
+@pytest.fixture(scope="module")
+def df_sample():
+    """Fixture to create a sample DataFrame similar to what perform_eda expects."""
+    # Creating a minimal DataFrame that includes necessary columns for perform_eda
+    data = {'Attrition_Flag': ['Existing Customer', 'Attrited Customer', 'Existing Customer'],
+            'Customer_Age': [50, 40, 30],
+            'Marital_Status': ['Married', 'Single', 'Divorced'],
+            'Total_Trans_Ct': [50, 45, 30]}
+    df = pd.DataFrame(data)
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+    return df
+
+
+def test_perform_eda(df_sample, tmp_path):
+    """Test the perform_eda function to ensure plots are saved as expected."""
+    # Temporarily override the EDA path in config to use a pytest temporary directory
+    original_eda_path = config['EDA']['path']
+    config['EDA']['path'] = str(tmp_path)
+
+    try:
+        perform_eda(df_sample)
+        expected_files = [
+            'churn_histogram.png',
+            'customer_age_histogram.png',
+            'marital_status_distribution.png',
+            'total_trans_ct_distribution.png',
+            'correlation_heatmap.png'
+        ]
+
+        # Check all expected files are created
+        for file_name in expected_files:
+            assert (
+                tmp_path / file_name).exists(), f"{file_name} was not created by perform_eda"
+
+    finally:
+        # Restore original EDA path in config to avoid affecting other tests or operations
+        config['EDA']['path'] = original_eda_path
 
 
 @pytest.mark.skip(reason="not yet implemented")
