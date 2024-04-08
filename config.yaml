@@ -10,3 +10,10 @@ data:
 
 EDA:
   path: "./images/eda"
+
+categories:
+  - Gender
+  - Education_Level
+  - Marital_Status
+  - Income_Category
+  - Card_Category

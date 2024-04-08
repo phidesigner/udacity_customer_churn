@@ -93,6 +93,7 @@ def perform_eda(df):
     # Feature engineering for churn column
     df['Churn'] = df['Attrition_Flag'].apply(
         lambda val: 0 if val == "Existing Customer" else 1)
+    df['Churn'] = pd.to_numeric(df['Churn'], errors='coerce')
 
     try:
         # Histogram for Churn
@@ -133,21 +134,38 @@ def perform_eda(df):
         logging.error("Failed to perform EDA: %s", e)
 
 
-def encoder_helper(df, category_lst, response):
+def encoder_helper(df, category_lst, response='Churn'):
     '''
-    helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the
-    notebook
+    Helper function to turn each categorical column into a new column with
+    proportion of churn for each category - associated with Cell 15 from the notebook.
 
     input:
-            df: pandas dataframe
+            df: pandas DataFrame
             category_lst: list of columns that contain categorical features
             response: string of response name [optional argument that could be used for naming variables or index y column]
 
     output:
-            df: pandas dataframe with new columns for
+            df: pandas DataFrame with new columns for each categorical feature with suffix '_Churn'
     '''
-    pass
+    try:
+        for category in category_lst:
+            # Group by the category and calculate the mean of 'Churn' for each category
+            category_groups = df.groupby(category)[response].mean()
+
+            # Create a new column for each category with the mean churn rate
+            new_column_name = f"{category}_{response}"
+            df[new_column_name] = df[category].map(category_groups)
+
+            logging.info(f"Encoded column {
+                         new_column_name} added to dataframe.")
+        return df
+    except KeyError as e:
+        logging.error(f"KeyError in encoder_helper function: {
+                      category} does not exist in DataFrame: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error in encoder_helper function: {e}")
+        raise
 
 
 def perform_feature_engineering(df, response):
@@ -217,8 +235,18 @@ def train_models(X_train, X_test, y_train, y_test):
 
 if __name__ == '__main__':
     try:
+        # Import data
         df = import_data(config['data']['csv_path'])
+        logging.info("Data import complete.")
+
+        # Perform EDA
         perform_eda(df)
         logging.info("EDA complete.")
+
+        # Encode categorical features
+        category_lst = config['categories']
+        df_encoded = encoder_helper(df, category_lst)
+        logging.info("Categorical encoding complete.")
+
     except Exception as e:
         logging.error("Error in main execution: %s", e)
