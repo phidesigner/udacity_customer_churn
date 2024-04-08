@@ -1,5 +1,6 @@
 # library doc string
 
+import matplotlib
 from sklearn.metrics import RocCurveDisplay, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -20,14 +21,10 @@ sns.set()
 
 # Debbaging for matplotlib
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+matplotlib.use('Agg')
 
-
-try:
-    with open('config.yaml', 'r', encoding='utf-8') as file:
-        config = yaml.safe_load(file)
-except Exception as e:
-    print(f"Error loading the config file: {e}")
-    sys.exit(1)
+with open('config.yaml', 'r', encoding='utf-8') as file:
+    config = yaml.safe_load(file)
 
 # Set up logging
 logging.basicConfig(
@@ -40,26 +37,35 @@ logging.basicConfig(
 
 def import_data(pth):
     '''
-    returns dataframe for the csv found at pth
+    Returns dataframe for the csv found at pth or an empty dataframe if the file is empty.
 
     input:
-            pth: a path to the csv
+            pth: A path to the csv.
     output:
-            df: pandas dataframe
+            df: Pandas dataframe.
     '''
     try:
         df = pd.read_csv(pth)
-        logging.info("Data loaded successfully from %s", pth)
+        if df.empty:
+            logging.warning("Loaded an empty dataframe from %s", pth)
+        else:
+            logging.info("Data loaded successfully from %s", pth)
         return df
     except FileNotFoundError:
         logging.error("File not found at %s", pth)
-        sys.exit(1)
-    except pd.errors.EmptyDataError as e:
-        logging.error("No columns to parse from file %s", pth)
-        sys.exit(1)
+        raise FileNotFoundError(f"File not found at {pth}")
+    except pd.errors.EmptyDataError:
+        logging.warning(
+            "Loaded an empty dataframe due to no columns to parse from file %s", pth)
+        return pd.DataFrame()
+    except pd.errors.ParserError as e:
+        logging.error(
+            "Parser error occurred while importing data from file %s: %s", pth, e)
+        raise pd.errors.ParserError(
+            f"Parser error occurred while importing data from file {pth}: {e}")
     except Exception as e:
         logging.error("Unexpected error occurred while importing data: %s", e)
-        sys.exit(1)
+        raise Exception(f"Unexpected error occurred while importing data: {e}")
 
 
 def perform_eda(df):
@@ -72,12 +78,12 @@ def perform_eda(df):
     Output:
         None: The function saves the EDA plots to files but does not return any value.
     '''
-    eda_path = config['EDA']['path']
-    if not os.path.exists(eda_path):
-        os.makedirs(eda_path)
-        logging.info("%s directory created for EDA output.", eda_path)
-        # Log Descriptive Statistics
     try:
+        eda_path = config['EDA']['path']
+        if not os.path.exists(eda_path):
+            os.makedirs(eda_path)
+            logging.info("%s directory created for EDA output.", eda_path)
+            # Log Descriptive Statistics
         descriptive_stats = df.describe()
         logging.info(f"Descriptive Statistics:\n{descriptive_stats}")
         # Consider saving to a file if needed
@@ -213,5 +219,6 @@ if __name__ == '__main__':
     try:
         df = import_data(config['data']['csv_path'])
         perform_eda(df)
+        logging.info("EDA complete.")
     except Exception as e:
         logging.error("Error in main execution: %s", e)
