@@ -1,5 +1,4 @@
 # Make sure to replace 'your_module' with the actual name of your module
-from churn_library import import_data, perform_eda
 import logging
 import churn_library as cls
 import yaml
@@ -59,6 +58,23 @@ def setup_invalid_file():
     yield
     os.remove(INVALID_FILE_PATH)
     logging.info("Malformed non-CSV file removed after testing.")
+
+
+@pytest.fixture(scope="module")
+def sample_dataframe():
+    """
+    Provides a sample DataFrame for testing purposes.
+    """
+    test_data = {
+        'Gender': ['M', 'F', 'M', 'F', 'M'],
+        'Education_Level': ['High School', 'Graduate', 'Uneducated', 'High School', 'Graduate'],
+        'Marital_Status': ['Married', 'Single', 'Married', 'Single', 'Married'],
+        'Attrition_Flag': ['Existing Customer', 'Attrited Customer', 'Existing Customer', 'Attrited Customer', 'Existing Customer']
+    }
+    df = pd.DataFrame(test_data)
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+    return df
 
 
 def test_import_data_success():
@@ -137,11 +153,42 @@ def test_perform_eda(tmpdir):
     logging.info("Original Config path restablished.")
 
 
-@ pytest.mark.skip(reason="not yet implemented")
-def test_encoder_helper(encoder_helper):
-    '''
-    test encoder helper
-    '''
+def test_encoder_helper(sample_dataframe):
+    """
+    Test the encoder_helper function to ensure it correctly adds new columns
+    with encoded categorical features based on churn proportion.
+    """
+    logging.info("Testing encoder_helper function.")
+
+    # Specify the categories to encode
+    category_lst = ['Gender', 'Education_Level', 'Marital_Status']
+
+    df_encoded = cls.encoder_helper(sample_dataframe, category_lst)
+
+    # Actual expected churn rates for each category
+    expected_gender_churn = sample_dataframe.groupby('Gender')['Churn'].mean()
+    expected_education_churn = sample_dataframe.groupby('Education_Level')[
+        'Churn'].mean()
+    expected_marital_churn = sample_dataframe.groupby('Marital_Status')[
+        'Churn'].mean()
+
+    # Map the expected churn rates back to the DataFrame for comparison
+    sample_dataframe['expected_Gender_Churn'] = sample_dataframe['Gender'].map(
+        expected_gender_churn)
+    sample_dataframe['expected_Education_Level_Churn'] = sample_dataframe['Education_Level'].map(
+        expected_education_churn)
+    sample_dataframe['expected_Marital_Status_Churn'] = sample_dataframe['Marital_Status'].map(
+        expected_marital_churn)
+
+    # Compare the actual encoded values with the expected values
+    pd.testing.assert_series_equal(
+        df_encoded['Gender_Churn'], sample_dataframe['expected_Gender_Churn'], check_names=False, check_dtype=False)
+    pd.testing.assert_series_equal(
+        df_encoded['Education_Level_Churn'], sample_dataframe['expected_Education_Level_Churn'], check_names=False, check_dtype=False)
+    pd.testing.assert_series_equal(
+        df_encoded['Marital_Status_Churn'], sample_dataframe['expected_Marital_Status_Churn'], check_names=False, check_dtype=False)
+
+    logging.info("encoder_helper function passed all tests successfully.")
 
 
 @ pytest.mark.skip(reason="not yet implemented")

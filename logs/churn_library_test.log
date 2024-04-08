@@ -1,21 +1,21 @@
-2024-04-08 15:50:56,034 [INFO] Testing import_data with a valid CSV file.
-2024-04-08 15:50:56,034 [INFO] Data loaded successfully from ./data/test_bank_data.csv
-2024-04-08 15:50:56,034 [INFO] import_data successfully returned a non-empty DataFrame.
-2024-04-08 15:50:56,034 [INFO] Testing import_data with a non-existent file path.
-2024-04-08 15:50:56,034 [ERROR] File not found at ./data/non_existent_file.csv
-2024-04-08 15:50:56,034 [INFO] import_data correctly raised FileNotFoundError.
-2024-04-08 15:50:56,034 [INFO] Creating an empty CSV file for testing.
-2024-04-08 15:50:56,034 [INFO] Testing import_data with an empty CSV file.
-2024-04-08 15:50:56,034 [WARNING] Loaded an empty dataframe due to no columns to parse from file ./data/empty_test_data.csv
-2024-04-08 15:50:56,034 [INFO] import_data correctly returned an empty DataFrame for an empty CSV file.
-2024-04-08 15:50:56,034 [INFO] Creating a malformed non-CSV file for testing.
-2024-04-08 15:50:56,034 [INFO] Testing import_data with a malformed non-CSV file.
-2024-04-08 15:50:56,049 [ERROR] Parser error occurred while importing data from file ./data/test_not_csv.txt: Error tokenizing data. C error: Expected 3 fields in line 4, saw 4
+2024-04-08 18:42:28,910 [INFO] Testing import_data with a valid CSV file.
+2024-04-08 18:42:28,915 [INFO] Data loaded successfully from ./data/test_bank_data.csv
+2024-04-08 18:42:28,915 [INFO] import_data successfully returned a non-empty DataFrame.
+2024-04-08 18:42:28,918 [INFO] Testing import_data with a non-existent file path.
+2024-04-08 18:42:28,918 [ERROR] File not found at ./data/non_existent_file.csv
+2024-04-08 18:42:28,918 [INFO] import_data correctly raised FileNotFoundError.
+2024-04-08 18:42:28,920 [INFO] Creating an empty CSV file for testing.
+2024-04-08 18:42:28,921 [INFO] Testing import_data with an empty CSV file.
+2024-04-08 18:42:28,922 [WARNING] Loaded an empty dataframe due to no columns to parse from file ./data/empty_test_data.csv
+2024-04-08 18:42:28,923 [INFO] import_data correctly returned an empty DataFrame for an empty CSV file.
+2024-04-08 18:42:28,925 [INFO] Creating a malformed non-CSV file for testing.
+2024-04-08 18:42:28,927 [INFO] Testing import_data with a malformed non-CSV file.
+2024-04-08 18:42:28,929 [ERROR] Parser error occurred while importing data from file ./data/test_not_csv.txt: Error tokenizing data. C error: Expected 3 fields in line 4, saw 4
 
-2024-04-08 15:50:56,049 [INFO] import_data correctly raised ParserError for a malformed file.
-2024-04-08 15:50:56,056 [INFO] Testing perform_eda for expected plot output.
-2024-04-08 15:50:56,074 [INFO] Data loaded successfully from ./data/bank_data.csv
-2024-04-08 15:50:56,099 [INFO] Descriptive Statistics:
+2024-04-08 18:42:28,929 [INFO] import_data correctly raised ParserError for a malformed file.
+2024-04-08 18:42:28,943 [INFO] Testing perform_eda for expected plot output.
+2024-04-08 18:42:28,973 [INFO] Data loaded successfully from ./data/bank_data.csv
+2024-04-08 18:42:29,033 [INFO] Descriptive Statistics:
          Unnamed: 0     CLIENTNUM  ...  Total_Ct_Chng_Q4_Q1  Avg_Utilization_Ratio
 count  10127.000000  1.012700e+04  ...         10127.000000           10127.000000
 mean    5063.000000  7.391776e+08  ...             0.712222               0.274894
@@ -27,8 +27,13 @@ min        0.000000  7.080821e+08  ...             0.000000               0.0000
 max    10126.000000  8.283431e+08  ...             3.714000               0.999000
 
 [8 rows x 16 columns]
-2024-04-08 15:50:56,966 [INFO] EDA performed and plots saved.
-2024-04-08 15:50:56,966 [INFO] perform_eda successfully generated all expected plots.
-2024-04-08 15:50:56,966 [INFO] Original Config path restablished.
-2024-04-08 15:50:56,973 [INFO] Malformed non-CSV file removed after testing.
-2024-04-08 15:50:56,973 [INFO] Empty CSV file removed after testing.
+2024-04-08 18:42:30,754 [INFO] EDA performed and plots saved.
+2024-04-08 18:42:30,755 [INFO] perform_eda successfully generated all expected plots.
+2024-04-08 18:42:30,755 [INFO] Original Config path restablished.
+2024-04-08 18:42:30,758 [INFO] Testing encoder_helper function.
+2024-04-08 18:42:30,760 [INFO] Encoded column Gender_Churn added to dataframe.
+2024-04-08 18:42:30,761 [INFO] Encoded column Education_Level_Churn added to dataframe.
+2024-04-08 18:42:30,762 [INFO] Encoded column Marital_Status_Churn added to dataframe.
+2024-04-08 18:42:30,765 [INFO] encoder_helper function passed all tests successfully.
+2024-04-08 18:42:30,770 [INFO] Malformed non-CSV file removed after testing.
+2024-04-08 18:42:30,771 [INFO] Empty CSV file removed after testing.
