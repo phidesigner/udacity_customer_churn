@@ -1,5 +1,5 @@
-2024-04-08 13:27:34,996 [INFO] Data loaded successfully from ./data/bank_data.csv
-2024-04-08 13:27:35,046 [INFO] Descriptive Statistics:
+2024-04-08 15:51:58,069 [INFO] Data loaded successfully from ./data/bank_data.csv
+2024-04-08 15:51:58,096 [INFO] Descriptive Statistics:
          Unnamed: 0     CLIENTNUM  ...  Total_Ct_Chng_Q4_Q1  Avg_Utilization_Ratio
 count  10127.000000  1.012700e+04  ...         10127.000000           10127.000000
 mean    5063.000000  7.391776e+08  ...             0.712222               0.274894
@@ -11,5 +11,5 @@ min        0.000000  7.080821e+08  ...             0.000000               0.0000
 max    10126.000000  8.283431e+08  ...             3.714000               0.999000
 
 [8 rows x 16 columns]
-2024-04-08 13:27:36,475 [INFO] EDA performed and plots saved.
-2024-04-08 13:27:36,476 [INFO] EDA complete.
+2024-04-08 15:51:58,965 [INFO] EDA performed and plots saved.
+2024-04-08 15:51:58,965 [INFO] EDA complete.

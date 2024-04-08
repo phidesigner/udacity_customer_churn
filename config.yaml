@@ -1,7 +1,7 @@
 logging:
   format: "%(asctime)s [%(levelname)s] %(message)s"
   level_main: INFO
-  level_test: DEBUG
+  level_test: INFO
   filename_main: "./logs/churn_library_main.log"
   filename_test: "./logs/churn_library_test.log"
 
