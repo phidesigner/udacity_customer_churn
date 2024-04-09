@@ -168,7 +168,7 @@ def encoder_helper(df, category_lst, response='Churn'):
         raise
 
 
-def perform_feature_engineering(df, response):
+def perform_feature_engineering(df, response='Churn'):
     '''
     input:
               df: pandas dataframe
@@ -180,6 +180,37 @@ def perform_feature_engineering(df, response):
               y_train: y training data
               y_test: y testing data
     '''
+    try:
+        y = df[response]
+
+        # Specify columns to keep for the model features
+        keep_cols = config['features']['keep_cols']
+
+        # Validate existence of columns in DataFrame
+        missing_cols = [col for col in keep_cols if col not in df.columns]
+        if missing_cols:
+            logging.error(f"Missing columns in DataFrame: {missing_cols}")
+            raise KeyError(f"Missing columns in DataFrame: {missing_cols}")
+
+        # Create the features DataFrame X with the columns specified in keep_cols
+        X = df[keep_cols]
+
+        # Splitting the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.3, random_state=42)
+
+        logging.info(
+            "Feature engineering and data splitting completed successfully.")
+
+        return X_train, X_test, y_train, y_test
+
+    except KeyError as e:
+        logging.error("KeyError in perform_feature_engineering: %s", e)
+        raise
+
+    except Exception as e:
+        logging.error("Unexpected error in perform_feature_engineering: %s", e)
+        raise
 
 
 def classification_report_image(y_train,
@@ -247,6 +278,13 @@ if __name__ == '__main__':
         category_lst = config['categories']
         df_encoded = encoder_helper(df, category_lst)
         logging.info("Categorical encoding complete.")
+
+        # Perform feature engineering
+        response = 'Churn'
+        X_train, X_test, y_train, y_test = perform_feature_engineering(
+            df_encoded, response)
+        logging.info(
+            "Feature engineering and data splitting completed successfully.")
 
     except Exception as e:
         logging.error("Error in main execution: %s", e)
