@@ -120,8 +120,6 @@ def test_import_data_invalid_file(setup_invalid_file):
     logging.info(
         "import_data correctly raised ParserError for a malformed file.")
 
-# Test cases for EDA
-
 
 def test_perform_eda(tmpdir):
     """
@@ -191,11 +189,49 @@ def test_encoder_helper(sample_dataframe):
     logging.info("encoder_helper function passed all tests successfully.")
 
 
-@ pytest.mark.skip(reason="not yet implemented")
-def test_perform_feature_engineering(perform_feature_engineering):
-    '''
-    test perform_feature_engineering
-    '''
+def test_perform_feature_engineering(sample_dataframe):
+    """
+    Test perform_feature_engineering function to ensure correct train-test split and column selection.
+    """
+    logging.info("Testing perform_feature_engineering function.")
+
+    response = 'Churn'
+
+    # Ensure sample_dataframe includes necessary columns for feature engineering
+    category_lst = config['categories']
+    sample_dataframe = cls.encoder_helper(sample_dataframe, category_lst)
+
+    X_train, X_test, y_train, y_test = cls.perform_feature_engineering(
+        sample_dataframe, response)
+
+    # Check if output data frames are of correct type
+    assert isinstance(
+        X_train, pd.DataFrame), "X_train should be a pandas DataFrame."
+    assert isinstance(
+        X_test, pd.DataFrame), "X_test should be a pandas DataFrame."
+    assert isinstance(y_train, pd.Series), "y_train should be a pandas Series."
+    assert isinstance(y_test, pd.Series), "y_test should be a pandas Series."
+
+    # Ensure data frames are not empty
+    assert not X_train.empty, "X_train should not be empty."
+    assert not X_test.empty, "X_test should not be empty."
+    assert not y_train.empty, "y_train should not be empty."
+    assert not y_test.empty, "y_test should not be empty."
+
+    # Validate the correct columns are included in X_train and X_test
+    expected_cols = set(config['features']['keep_cols'])
+    assert set(
+        X_train.columns) == expected_cols, "X_train does not contain the correct columns."
+    assert set(
+        X_test.columns) == expected_cols, "X_test does not contain the correct columns."
+
+    # Optionally, validate the split ratio
+    total_size = len(sample_dataframe)
+    train_size = len(X_train)
+    test_size = len(X_test)
+    assert train_size > test_size, "Training set should be larger than the test set."
+    logging.info(
+        "perform_feature_engineering function passed all tests successfully.")
 
 
 @ pytest.mark.skip(reason="not yet implemented")
