@@ -1,24 +1,25 @@
-2024-04-09 12:20:46,242 [INFO] Data loaded successfully from ./data/bank_data.csv
-2024-04-09 12:20:46,242 [INFO] Data import complete.
-2024-04-09 12:20:46,291 [INFO] Descriptive Statistics:
-         Unnamed: 0     CLIENTNUM  ...  Total_Ct_Chng_Q4_Q1  Avg_Utilization_Ratio
-count  10127.000000  1.012700e+04  ...         10127.000000           10127.000000
-mean    5063.000000  7.391776e+08  ...             0.712222               0.274894
-std     2923.557422  3.690378e+07  ...             0.238086               0.275691
-min        0.000000  7.080821e+08  ...             0.000000               0.000000
-25%     2531.500000  7.130368e+08  ...             0.582000               0.023000
-50%     5063.000000  7.179264e+08  ...             0.702000               0.176000
-75%     7594.500000  7.731435e+08  ...             0.818000               0.503000
-max    10126.000000  8.283431e+08  ...             3.714000               0.999000
+2024-04-09 16:34:10,310 [INFO] Data loaded successfully from ./data/bank_data.csv
+2024-04-09 16:34:10,311 [INFO] Data import complete.
+2024-04-09 16:34:10,315 [INFO] 'Churn' column creation complete.
+2024-04-09 16:34:10,365 [INFO] Descriptive Statistics:
+         Unnamed: 0     CLIENTNUM  Customer_Age  Dependent_count  ...  Total_Trans_Ct  Total_Ct_Chng_Q4_Q1  Avg_Utilization_Ratio         Churn
+count  10127.000000  1.012700e+04  10127.000000     10127.000000  ...    10127.000000         10127.000000           10127.000000  10127.000000
+mean    5063.000000  7.391776e+08     46.325960         2.346203  ...       64.858695             0.712222               0.274894      0.160660
+std     2923.557422  3.690378e+07      8.016814         1.298908  ...       23.472570             0.238086               0.275691      0.367235
+min        0.000000  7.080821e+08     26.000000         0.000000  ...       10.000000             0.000000               0.000000      0.000000
+25%     2531.500000  7.130368e+08     41.000000         1.000000  ...       45.000000             0.582000               0.023000      0.000000
+50%     5063.000000  7.179264e+08     46.000000         2.000000  ...       67.000000             0.702000               0.176000      0.000000
+75%     7594.500000  7.731435e+08     52.000000         3.000000  ...       81.000000             0.818000               0.503000      0.000000
+max    10126.000000  8.283431e+08     73.000000         5.000000  ...      139.000000             3.714000               0.999000      1.000000
 
-[8 rows x 16 columns]
-2024-04-09 12:20:47,822 [INFO] EDA performed and plots saved.
-2024-04-09 12:20:47,822 [INFO] EDA complete.
-2024-04-09 12:20:47,822 [INFO] Encoded column Gender_Churn added to dataframe.
-2024-04-09 12:20:47,822 [INFO] Encoded column Education_Level_Churn added to dataframe.
-2024-04-09 12:20:47,822 [INFO] Encoded column Marital_Status_Churn added to dataframe.
-2024-04-09 12:20:47,822 [INFO] Encoded column Income_Category_Churn added to dataframe.
-2024-04-09 12:20:47,822 [INFO] Encoded column Card_Category_Churn added to dataframe.
-2024-04-09 12:20:47,822 [INFO] Categorical encoding complete.
-2024-04-09 12:20:47,839 [INFO] Feature engineering and data splitting completed successfully.
-2024-04-09 12:20:47,839 [INFO] Feature engineering and data splitting completed successfully.
+[8 rows x 17 columns]
+2024-04-09 16:34:12,058 [INFO] EDA performed and plots saved.
+2024-04-09 16:34:12,058 [INFO] EDA complete.
+2024-04-09 16:34:12,058 [INFO] Encoded column Gender_Churn added to dataframe.
+2024-04-09 16:34:12,058 [INFO] Encoded column Education_Level_Churn added to dataframe.
+2024-04-09 16:34:12,058 [INFO] Encoded column Marital_Status_Churn added to dataframe.
+2024-04-09 16:34:12,058 [INFO] Encoded column Income_Category_Churn added to dataframe.
+2024-04-09 16:34:12,073 [INFO] Encoded column Card_Category_Churn added to dataframe.
+2024-04-09 16:34:12,073 [INFO] Categorical encoding complete.
+2024-04-09 16:34:12,073 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-09 16:34:12,073 [INFO] Feature engineering and data splitting completed successfully.

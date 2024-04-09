@@ -68,6 +68,22 @@ def import_data(pth):
         raise Exception(f"Unexpected error occurred while importing data: {e}")
 
 
+def create_churn_column(df):
+    '''
+    Adds a 'Churn' column to the dataframe based on the 'Attrition_Flag' column.
+
+    Input:
+        df: pandas DataFrame to add the 'Churn' column to.
+
+    Output:
+        df: pandas DataFrame with the 'Churn' column added.
+    '''
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+    df['Churn'] = pd.to_numeric(df['Churn'], errors='coerce')
+    return df
+
+
 def perform_eda(df):
     '''
     Perform EDA on df and save figures to images folder as specified in config.
@@ -89,11 +105,6 @@ def perform_eda(df):
         # Consider saving to a file if needed
     except Exception as e:
         logging.error(f"Failed to generate descriptive statistics: {e}")
-
-    # Feature engineering for churn column
-    df['Churn'] = df['Attrition_Flag'].apply(
-        lambda val: 0 if val == "Existing Customer" else 1)
-    df['Churn'] = pd.to_numeric(df['Churn'], errors='coerce')
 
     try:
         # Histogram for Churn
@@ -269,6 +280,10 @@ if __name__ == '__main__':
         # Import data
         df = import_data(config['data']['csv_path'])
         logging.info("Data import complete.")
+
+        # Create 'Churn' column
+        df = create_churn_column(df)
+        logging.info("'Churn' column creation complete.")
 
         # Perform EDA
         perform_eda(df)
