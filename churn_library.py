@@ -53,11 +53,14 @@ def import_data(pth):
     except FileNotFoundError:
         logging.error("File not found: %s", pth)
         raise
-    except pd.errors.EmptyDataError:
-        logging.error("No columns to parse from file")
-        return pd.DataFrame()
+    except pd.errors.EmptyDataError as exc:
+        logging.error("No columns to parse from file: %s", pth)
+        raise pd.errors.EmptyDataError(
+            "No columns to parse from file") from exc
+        # return pd.DataFrame()
     except Exception as ex:
-        logging.error("Unexpected error: %s", ex)
+        logging.error(
+            "Unexpected error while loading data from % s: % s", pth, ex)
         raise
 
 
@@ -75,6 +78,7 @@ def create_churn_column(data_frame):
     try:
         data_frame['Churn'] = data_frame['Attrition_Flag'].apply(
             lambda val: 0 if val == "Existing Customer" else 1)
+        # Ensuring 'Churn' column is numeric
         data_frame['Churn'] = pd.to_numeric(
             data_frame['Churn'], errors='coerce')
         logging.info("Churn column created successfully.")
@@ -89,7 +93,7 @@ def create_churn_column(data_frame):
 
 def perform_eda(data_frame):
     '''
-    Perform EDA on data_frame and save figures to images folder as specified
+    Perform EDA on df and save figures to images folder as specified
     in config.
 
     Input:
@@ -99,17 +103,10 @@ def perform_eda(data_frame):
         None: The function saves the EDA plots to files but does not return
         any value.
     '''
-    try:
-        eda_path = config['EDA']['path']
-        if not os.path.exists(eda_path):
-            os.makedirs(eda_path)
-            logging.info("%s directory created for EDA output.", eda_path)
-            # Log Descriptive Statistics
-        descriptive_stats = data_frame.describe()
-        logging.info("Descriptive Statistics:\n%s", descriptive_stats)
-        # Consider saving to a file if needed
-    except Exception as ex:
-        logging.error("Failed to generate descriptive statistics: %s", ex)
+    eda_path = config['EDA']['path']
+    if not os.path.exists(eda_path):
+        os.makedirs(eda_path)
+        logging.info("%s directory created for EDA output.", eda_path)
 
     try:
         # Histogram for Churn
@@ -146,9 +143,12 @@ def perform_eda(data_frame):
         plt.close()
 
         logging.info("EDA performed and plots saved.")
-
+    except KeyError as key_error:
+        logging.error("Failed to generate plots: KeyError %s", key_error)
+        raise
     except Exception as ex:
-        logging.error("Failed to perform EDA: %s", ex)
+        logging.error(
+            "Failed to perform EDA due to an unexpected error: %s", ex)
         raise
 
 
@@ -166,8 +166,7 @@ def encoder_helper(data_frame, category_lst, response='Churn'):
 
     output:
             data_frame: pandas DataFrame with new columns for each categorical
-            feature
-            with suffix '_Churn'
+            feature with suffix '_Churn'
     '''
     try:
         for category in category_lst:
@@ -180,15 +179,16 @@ def encoder_helper(data_frame, category_lst, response='Churn'):
             data_frame[new_column_name] = data_frame[category].map(
                 category_groups)
 
-            logging.info(f"Encoded column {
-                         new_column_name} added to dataframe.")
+            logging.info("Encoded column %s added to dataframe.",
+                         new_column_name)
         return data_frame
     except KeyError as key_error:
-        logging.error(f"KeyError in encoder_helper function: {
-                      category} does not exist in DataFrame: {key_error}")
+        logging.error(
+            "KeyError in encoder_helper function: %s does not exist in \
+             DataFrame: %s", category, key_error)
         raise
     except Exception as ex:
-        logging.error(f"Unexpected error in encoder_helper function: {ex}")
+        logging.error("Unexpected error in encoder_helper function: %s", ex)
         raise
 
 
@@ -218,8 +218,9 @@ def perform_feature_engineering(data_frame, response='Churn'):
         missing_cols = [
             col for col in keep_cols if col not in data_frame.columns]
         if missing_cols:
-            logging.error(f"Missing columns in DataFrame: {missing_cols}")
-            raise KeyError(f"Missing columns in DataFrame: {missing_cols}")
+            error_message = "Missing columns in DataFrame: %s"
+            logging.error(error_message, missing_cols)
+            raise KeyError(error_message % missing_cols)
 
         # Create the features DataFrame X with the columns specified
         # in keep_cols
@@ -231,15 +232,15 @@ def perform_feature_engineering(data_frame, response='Churn'):
 
         logging.info(
             "Feature engineering and data splitting completed successfully.")
-
         return X_train, X_test, y_train, y_test
 
-    except KeyError as e:
-        logging.error("KeyError in perform_feature_engineering: %s", e)
+    except KeyError as key_error:
+        logging.error("KeyError in perform_feature_engineering: %s", key_error)
         raise
 
-    except Exception as e:
-        logging.error("Unexpected error in perform_feature_engineering: %s", e)
+    except Exception as ex:
+        logging.error(
+            "Unexpected error in perform_feature_engineering: %s", ex)
         raise
 
 
@@ -303,9 +304,9 @@ def classification_report_image(y_train,
         plt.close()
 
         logging.info("Classification reports have been saved as images.")
-    except Exception as e:
+    except Exception as ex:
         logging.error(
-            "Failed to generate or save classification report images: %s", e)
+            "Failed to generate or save classification report images: %s", ex)
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -334,9 +335,13 @@ def feature_importance_plot(model, X_data, output_pth):
 
         logging.info(
             "Feature importance plot saved successfully to %s", output_pth)
-    except Exception as e:
+    except AttributeError as ex:
+        logging.error("Model does not support feature importances: %s", ex)
+        raise
+    except Exception as ex:
         logging.error(
-            "Failed to generate or save feature importance plot: %s", e)
+            "Failed to generate or save feature importance plot: %s", ex)
+        raise
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -359,14 +364,11 @@ def train_models(X_train, X_test, y_train, y_test):
         pipeline_lr.fit(X_train, y_train)
         logging.info("Logistic Regression model trained successfully.")
 
-        # Random Forest doesn't necessarily benefit from scaling, but we
-        # include it for consistency
         pipeline_rf = Pipeline([
-            ('scaler', StandardScaler()),
+            ('scaler', StandardScaler()),  # Scaler for consistency only
             ('classifier', RandomForestClassifier(random_state=42))
         ])
-        # Setting up parameter grid for GridSearchCV, adapting for use with
-        # a pipeline
+        # Setting up parameter grid for GridSearchCV
         param_grid_rf = {
             'classifier__n_estimators': [200, 500],
             'classifier__max_features': ['sqrt', 'log2'],
@@ -389,7 +391,6 @@ def train_models(X_train, X_test, y_train, y_test):
             y_test_preds_lr, y_test_preds_rf)
 
         # Feature importance plot for Random Forest
-        # Access the classifier attribute of the best estimator in the pipeline
         feature_importance_plot(cv_rfc.best_estimator_['classifier'],
                                 X_train, os.path.join(
             config['EDA']['results'], 'rf_feature_importance.png'))
@@ -401,45 +402,34 @@ def train_models(X_train, X_test, y_train, y_test):
             config['models']['path'], 'logistic_model.pkl'))
 
         logging.info("Models and reports have been saved successfully.")
-    except Exception as e:
-        logging.error("Model training or saving failed: %s", e)
-
-
-# Load the dataset
-data_frame = pd.read_csv(r'.\data\bank_data.csv')
-
-# Generate a representative sample of size 100
-# Assuming the data is large enough and using a random state for
-# reproducibility
-sample_data_frame = data_frame.sample(n=1000, random_state=42)
-
-# Optionally, save the sample to a new CSV file
-sample_data_frame.to_csv(r'.\data\test_bank_data.csv', index=False)
+    except Exception as ex:
+        logging.error("Model training or saving failed: %s", ex)
+        raise
 
 
 if __name__ == '__main__':
     try:
         # Import data
-        data_frame = import_data(config['data']['csv_path'])
+        df = import_data(config['data']['csv_path'])
         logging.info("Data import complete.")
 
         # Create 'Churn' column
-        data_frame = create_churn_column(data_frame)
+        df = create_churn_column(df)
         logging.info("'Churn' column creation complete.")
 
         # Perform EDA
-        perform_eda(data_frame)
+        perform_eda(df)
         logging.info("EDA complete.")
 
         # Encode categorical features
         category_lst = config['categories']
-        data_frame_encoded = encoder_helper(data_frame, category_lst)
+        df_encoded = encoder_helper(df, category_lst)
         logging.info("Categorical encoding complete.")
 
         # Perform feature engineering
         RESPONSE = 'Churn'
         X_train, X_test, y_train, y_test = perform_feature_engineering(
-            data_frame_encoded, RESPONSE)
+            df_encoded, RESPONSE)
         logging.info(
             "Feature engineering and data splitting completed successfully.")
 
@@ -447,5 +437,5 @@ if __name__ == '__main__':
         train_models(X_train, X_test, y_train, y_test)
         logging.info("Model training complete.")
 
-    except Exception as e:
-        logging.error("Error in main execution: %s", e)
+    except Exception as ex:
+        logging.error("Error in main execution: %s", ex)
