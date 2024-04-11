@@ -1,29 +1,28 @@
-# library doc string
+"""
+A library for churn prediction analysis, incorporating best practices
+"""
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-import matplotlib
-from sklearn.metrics import RocCurveDisplay, classification_report
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import normalize
-import shap
+import os
+import logging
 import joblib
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
 import yaml
-import logging
-import os
 
+# Set seaborn style
 sns.set()
 
 # Debbaging for matplotlib
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
-matplotlib.use('Agg')
+plt.switch_backend('agg')
 
 with open('config.yaml', 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
@@ -38,63 +37,67 @@ logging.basicConfig(
 
 
 def import_data(pth):
-    '''
-    Returns dataframe for the csv found at pth or an empty dataframe if the file is empty.
+    """
+    Import data from a CSV file at the given path.
 
-    input:
-            pth: A path to the csv.
-    output:
-            df: Pandas dataframe.
-    '''
+    Parameters:
+        pth (str): Path to the CSV file.
+
+    Returns:
+        pd.DataFrame: Loaded data as a pandas DataFrame.
+    """
     try:
-        df = pd.read_csv(pth)
-        if df.empty:
-            logging.warning("Loaded an empty dataframe from %s", pth)
-        else:
-            logging.info("Data loaded successfully from %s", pth)
-        return df
+        data_frame = pd.read_csv(pth)
+        logging.info("Data loaded successfully from %s", pth)
+        return data_frame
     except FileNotFoundError:
-        logging.error("File not found at %s", pth)
-        raise FileNotFoundError(f"File not found at {pth}")
+        logging.error("File not found: %s", pth)
+        raise
     except pd.errors.EmptyDataError:
-        logging.warning(
-            "Loaded an empty dataframe due to no columns to parse from file %s", pth)
+        logging.error("No columns to parse from file")
         return pd.DataFrame()
-    except pd.errors.ParserError as e:
-        logging.error(
-            "Parser error occurred while importing data from file %s: %s", pth, e)
-        raise pd.errors.ParserError(
-            f"Parser error occurred while importing data from file {pth}: {e}")
-    except Exception as e:
-        logging.error("Unexpected error occurred while importing data: %s", e)
-        raise Exception(f"Unexpected error occurred while importing data: {e}")
+    except Exception as ex:
+        logging.error("Unexpected error: %s", ex)
+        raise
 
 
-def create_churn_column(df):
+def create_churn_column(data_frame):
+    """
+    Adds a 'Churn' column to the DataFrame based on the 'Attrition_Flag'
+    column.
+
+    Parameters:
+        data_frame (pd.DataFrame): The DataFrame to be processed.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the 'Churn' column added.
+    """
+    try:
+        data_frame['Churn'] = data_frame['Attrition_Flag'].apply(
+            lambda val: 0 if val == "Existing Customer" else 1)
+        data_frame['Churn'] = pd.to_numeric(
+            data_frame['Churn'], errors='coerce')
+        logging.info("Churn column created successfully.")
+        return data_frame
+    except KeyError:
+        logging.error("'Attrition_Flag' column not found in DataFrame.")
+        raise
+    except Exception as ex:
+        logging.error("Unexpected error while creating churn column: %s", ex)
+        raise
+
+
+def perform_eda(data_frame):
     '''
-    Adds a 'Churn' column to the dataframe based on the 'Attrition_Flag' column.
+    Perform EDA on data_frame and save figures to images folder as specified
+    in config.
 
     Input:
-        df: pandas DataFrame to add the 'Churn' column to.
+        data_frame: pandas DataFrame to perform EDA on.
 
     Output:
-        df: pandas DataFrame with the 'Churn' column added.
-    '''
-    df['Churn'] = df['Attrition_Flag'].apply(
-        lambda val: 0 if val == "Existing Customer" else 1)
-    df['Churn'] = pd.to_numeric(df['Churn'], errors='coerce')
-    return df
-
-
-def perform_eda(df):
-    '''
-    Perform EDA on df and save figures to images folder as specified in config.
-
-    Input:
-        df: pandas DataFrame to perform EDA on.
-
-    Output:
-        None: The function saves the EDA plots to files but does not return any value.
+        None: The function saves the EDA plots to files but does not return
+        any value.
     '''
     try:
         eda_path = config['EDA']['path']
@@ -102,90 +105,102 @@ def perform_eda(df):
             os.makedirs(eda_path)
             logging.info("%s directory created for EDA output.", eda_path)
             # Log Descriptive Statistics
-        descriptive_stats = df.describe()
-        logging.info(f"Descriptive Statistics:\n{descriptive_stats}")
+        descriptive_stats = data_frame.describe()
+        logging.info("Descriptive Statistics:\n%s", descriptive_stats)
         # Consider saving to a file if needed
-    except Exception as e:
-        logging.error(f"Failed to generate descriptive statistics: {e}")
+    except Exception as ex:
+        logging.error("Failed to generate descriptive statistics: %s", ex)
 
     try:
         # Histogram for Churn
         plt.figure(figsize=(20, 10))
-        df['Churn'].hist()
+        data_frame['Churn'].hist()
         plt.savefig(os.path.join(eda_path, 'churn_histogram.png'))
         plt.close()
 
         # Customer Age Histogram
         plt.figure(figsize=(20, 10))
-        df['Customer_Age'].hist()
+        data_frame['Customer_Age'].hist()
         plt.savefig(os.path.join(eda_path, 'customer_age_histogram.png'))
         plt.close()
 
         # Marital Status Distribution
         plt.figure(figsize=(20, 10))
-        df['Marital_Status'].value_counts(normalize=True).plot(kind='bar')
+        data_frame['Marital_Status'].value_counts(
+            normalize=True).plot(kind='bar')
         plt.savefig(os.path.join(eda_path, 'marital_status_distribution.png'))
         plt.close()
 
         # Total Transactions Distribution
         plt.figure(figsize=(20, 10))
-        sns.histplot(df['Total_Trans_Ct'], kde=True, stat='density')
+        sns.histplot(data_frame['Total_Trans_Ct'], kde=True, stat='density')
         plt.savefig(os.path.join(eda_path, 'total_trans_ct_distribution.png'))
         plt.close()
 
         # Correlation Heatmap
         plt.figure(figsize=(20, 10))
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        sns.heatmap(df[numeric_cols].corr(), annot=False,
+        numeric_cols = data_frame.select_dtypes(include=[np.number]).columns
+        sns.heatmap(data_frame[numeric_cols].corr(), annot=False,
                     cmap='Dark2_r', linewidths=2)
         plt.savefig(os.path.join(eda_path, 'correlation_heatmap.png'))
         plt.close()
 
         logging.info("EDA performed and plots saved.")
 
-    except Exception as e:
-        logging.error("Failed to perform EDA: %s", e)
+    except Exception as ex:
+        logging.error("Failed to perform EDA: %s", ex)
+        raise
 
 
-def encoder_helper(df, category_lst, response='Churn'):
+def encoder_helper(data_frame, category_lst, response='Churn'):
     '''
     Helper function to turn each categorical column into a new column with
-    proportion of churn for each category - associated with Cell 15 from the notebook.
+    proportion of churn for each category - associated with Cell 15 from the
+    notebook.
 
     input:
-            df: pandas DataFrame
+            data_frame: pandas DataFrame
             category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+            response: string of response name [optional argument that could be
+            used for naming variables or index y column]
 
     output:
-            df: pandas DataFrame with new columns for each categorical feature with suffix '_Churn'
+            data_frame: pandas DataFrame with new columns for each categorical
+            feature
+            with suffix '_Churn'
     '''
     try:
         for category in category_lst:
-            # Group by the category and calculate the mean of 'Churn' for each category
-            category_groups = df.groupby(category)[response].mean()
+            # Group by the category and calculate the mean of 'Churn' for each
+            # category
+            category_groups = data_frame.groupby(category)[response].mean()
 
             # Create a new column for each category with the mean churn rate
             new_column_name = f"{category}_{response}"
-            df[new_column_name] = df[category].map(category_groups)
+            data_frame[new_column_name] = data_frame[category].map(
+                category_groups)
 
             logging.info(f"Encoded column {
                          new_column_name} added to dataframe.")
-        return df
-    except KeyError as e:
+        return data_frame
+    except KeyError as key_error:
         logging.error(f"KeyError in encoder_helper function: {
-                      category} does not exist in DataFrame: {e}")
+                      category} does not exist in DataFrame: {key_error}")
         raise
-    except Exception as e:
-        logging.error(f"Unexpected error in encoder_helper function: {e}")
+    except Exception as ex:
+        logging.error(f"Unexpected error in encoder_helper function: {ex}")
         raise
 
 
-def perform_feature_engineering(df, response='Churn'):
+def perform_feature_engineering(data_frame, response='Churn'):
     '''
+    Performs feature engineering on the DataFrame and splits the data into
+    training and testing sets.
+
     input:
-              df: pandas dataframe
-              response: string of response name [optional argument that could be used for naming variables or index y column]
+              data_frame: pandas dataframe
+              response: string of response name [optional argument that could
+              be used for naming variables or index y column]
 
     output:
               X_train: X training data
@@ -194,19 +209,21 @@ def perform_feature_engineering(df, response='Churn'):
               y_test: y testing data
     '''
     try:
-        y = df[response]
+        y = data_frame[response]
 
         # Specify columns to keep for the model features
         keep_cols = config['features']['keep_cols']
 
         # Validate existence of columns in DataFrame
-        missing_cols = [col for col in keep_cols if col not in df.columns]
+        missing_cols = [
+            col for col in keep_cols if col not in data_frame.columns]
         if missing_cols:
             logging.error(f"Missing columns in DataFrame: {missing_cols}")
             raise KeyError(f"Missing columns in DataFrame: {missing_cols}")
 
-        # Create the features DataFrame X with the columns specified in keep_cols
-        X = df[keep_cols]
+        # Create the features DataFrame X with the columns specified
+        # in keep_cols
+        X = data_frame[keep_cols]
 
         # Splitting the data into training and test sets
         X_train, X_test, y_train, y_test = train_test_split(
@@ -233,7 +250,8 @@ def classification_report_image(y_train,
                                 y_test_preds_lr,
                                 y_test_preds_rf):
     '''
-    produces classification report for training and testing results and stores report as image
+    produces classification report for training and testing results and stores
+    report as image
     in images folder
     input:
             y_train: training response values
@@ -254,11 +272,13 @@ def classification_report_image(y_train,
         plt.figure()
         plt.text(0.01, 1.25, str('Random Forest Train'), {
             'fontsize': 10}, fontproperties='monospace')
-        plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_rf)), {
+        plt.text(0.01, 0.05, str(classification_report(y_train,
+                                                       y_train_preds_rf)), {
             'fontsize': 10}, fontproperties='monospace')
         plt.text(0.01, 0.6, str('Random Forest Test'), {
             'fontsize': 10}, fontproperties='monospace')
-        plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_rf)), {
+        plt.text(0.01, 0.7, str(classification_report(y_test,
+                                                      y_test_preds_rf)), {
             'fontsize': 10}, fontproperties='monospace')
         plt.axis('off')
         plt.savefig(os.path.join(
@@ -269,11 +289,13 @@ def classification_report_image(y_train,
         plt.figure()
         plt.text(0.01, 1.25, str('Logistic Regression Train'),
                  {'fontsize': 10}, fontproperties='monospace')
-        plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
+        plt.text(0.01, 0.05, str(classification_report(y_train,
+                                                       y_train_preds_lr)), {
             'fontsize': 10}, fontproperties='monospace')
         plt.text(0.01, 0.6, str('Logistic Regression Test'), {
             'fontsize': 10}, fontproperties='monospace')
-        plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {
+        plt.text(0.01, 0.7, str(classification_report(y_test,
+                                                      y_test_preds_lr)), {
             'fontsize': 10}, fontproperties='monospace')
         plt.axis('off')
         plt.savefig(os.path.join(
@@ -337,12 +359,14 @@ def train_models(X_train, X_test, y_train, y_test):
         pipeline_lr.fit(X_train, y_train)
         logging.info("Logistic Regression model trained successfully.")
 
-        # Random Forest doesn't necessarily benefit from scaling, but we include it for consistency
+        # Random Forest doesn't necessarily benefit from scaling, but we
+        # include it for consistency
         pipeline_rf = Pipeline([
             ('scaler', StandardScaler()),
             ('classifier', RandomForestClassifier(random_state=42))
         ])
-        # Setting up parameter grid for GridSearchCV, adapting for use with a pipeline
+        # Setting up parameter grid for GridSearchCV, adapting for use with
+        # a pipeline
         param_grid_rf = {
             'classifier__n_estimators': [200, 500],
             'classifier__max_features': ['sqrt', 'log2'],
@@ -361,11 +385,13 @@ def train_models(X_train, X_test, y_train, y_test):
         y_train_preds_rf = cv_rfc.best_estimator_.predict(X_train)
         y_test_preds_rf = cv_rfc.best_estimator_.predict(X_test)
         classification_report_image(
-            y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf)
+            y_train, y_test, y_train_preds_lr, y_train_preds_rf,
+            y_test_preds_lr, y_test_preds_rf)
 
         # Feature importance plot for Random Forest
         # Access the classifier attribute of the best estimator in the pipeline
-        feature_importance_plot(cv_rfc.best_estimator_['classifier'], X_train, os.path.join(
+        feature_importance_plot(cv_rfc.best_estimator_['classifier'],
+                                X_train, os.path.join(
             config['EDA']['results'], 'rf_feature_importance.png'))
 
         # Save models
@@ -380,39 +406,40 @@ def train_models(X_train, X_test, y_train, y_test):
 
 
 # Load the dataset
-df = pd.read_csv(r'.\data\bank_data.csv')
+data_frame = pd.read_csv(r'.\data\bank_data.csv')
 
 # Generate a representative sample of size 100
-# Assuming the data is large enough and using a random state for reproducibility
-sample_df = df.sample(n=1000, random_state=42)
+# Assuming the data is large enough and using a random state for
+# reproducibility
+sample_data_frame = data_frame.sample(n=1000, random_state=42)
 
 # Optionally, save the sample to a new CSV file
-sample_df.to_csv(r'.\data\test_bank_data.csv', index=False)
+sample_data_frame.to_csv(r'.\data\test_bank_data.csv', index=False)
 
 
 if __name__ == '__main__':
     try:
         # Import data
-        df = import_data(config['data']['csv_path'])
+        data_frame = import_data(config['data']['csv_path'])
         logging.info("Data import complete.")
 
         # Create 'Churn' column
-        df = create_churn_column(df)
+        data_frame = create_churn_column(data_frame)
         logging.info("'Churn' column creation complete.")
 
         # Perform EDA
-        perform_eda(df)
+        perform_eda(data_frame)
         logging.info("EDA complete.")
 
         # Encode categorical features
         category_lst = config['categories']
-        df_encoded = encoder_helper(df, category_lst)
+        data_frame_encoded = encoder_helper(data_frame, category_lst)
         logging.info("Categorical encoding complete.")
 
         # Perform feature engineering
-        response = 'Churn'
+        RESPONSE = 'Churn'
         X_train, X_test, y_train, y_test = perform_feature_engineering(
-            df_encoded, response)
+            data_frame_encoded, RESPONSE)
         logging.info(
             "Feature engineering and data splitting completed successfully.")
 
