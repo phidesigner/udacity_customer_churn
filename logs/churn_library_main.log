@@ -1,25 +1,31 @@
-2024-04-09 16:34:10,310 [INFO] Data loaded successfully from ./data/bank_data.csv
-2024-04-09 16:34:10,311 [INFO] Data import complete.
-2024-04-09 16:34:10,315 [INFO] 'Churn' column creation complete.
-2024-04-09 16:34:10,365 [INFO] Descriptive Statistics:
-         Unnamed: 0     CLIENTNUM  Customer_Age  Dependent_count  ...  Total_Trans_Ct  Total_Ct_Chng_Q4_Q1  Avg_Utilization_Ratio         Churn
-count  10127.000000  1.012700e+04  10127.000000     10127.000000  ...    10127.000000         10127.000000           10127.000000  10127.000000
-mean    5063.000000  7.391776e+08     46.325960         2.346203  ...       64.858695             0.712222               0.274894      0.160660
-std     2923.557422  3.690378e+07      8.016814         1.298908  ...       23.472570             0.238086               0.275691      0.367235
-min        0.000000  7.080821e+08     26.000000         0.000000  ...       10.000000             0.000000               0.000000      0.000000
-25%     2531.500000  7.130368e+08     41.000000         1.000000  ...       45.000000             0.582000               0.023000      0.000000
-50%     5063.000000  7.179264e+08     46.000000         2.000000  ...       67.000000             0.702000               0.176000      0.000000
-75%     7594.500000  7.731435e+08     52.000000         3.000000  ...       81.000000             0.818000               0.503000      0.000000
-max    10126.000000  8.283431e+08     73.000000         5.000000  ...      139.000000             3.714000               0.999000      1.000000
+2024-04-11 13:33:39,193 [INFO] Data loaded successfully from ./data/test_bank_data.csv
+2024-04-11 13:33:39,194 [INFO] Data import complete.
+2024-04-11 13:33:39,198 [INFO] 'Churn' column creation complete.
+2024-04-11 13:33:39,245 [INFO] Descriptive Statistics:
+         Unnamed: 0     CLIENTNUM  ...  Avg_Utilization_Ratio        Churn
+count   1000.000000  1.000000e+03  ...            1000.000000  1000.000000
+mean    5062.059000  7.400859e+08  ...               0.288387     0.144000
+std     3030.576176  3.697478e+07  ...               0.279884     0.351265
+min        0.000000  7.080951e+08  ...               0.000000     0.000000
+25%     2420.250000  7.130833e+08  ...               0.037000     0.000000
+50%     5094.000000  7.181976e+08  ...               0.192000     0.000000
+75%     7880.250000  7.782439e+08  ...               0.526750     0.000000
+max    10116.000000  8.274429e+08  ...               0.973000     1.000000
 
 [8 rows x 17 columns]
-2024-04-09 16:34:12,058 [INFO] EDA performed and plots saved.
-2024-04-09 16:34:12,058 [INFO] EDA complete.
-2024-04-09 16:34:12,058 [INFO] Encoded column Gender_Churn added to dataframe.
-2024-04-09 16:34:12,058 [INFO] Encoded column Education_Level_Churn added to dataframe.
-2024-04-09 16:34:12,058 [INFO] Encoded column Marital_Status_Churn added to dataframe.
-2024-04-09 16:34:12,058 [INFO] Encoded column Income_Category_Churn added to dataframe.
-2024-04-09 16:34:12,073 [INFO] Encoded column Card_Category_Churn added to dataframe.
-2024-04-09 16:34:12,073 [INFO] Categorical encoding complete.
-2024-04-09 16:34:12,073 [INFO] Feature engineering and data splitting completed successfully.
-2024-04-09 16:34:12,073 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-11 13:33:40,844 [INFO] EDA performed and plots saved.
+2024-04-11 13:33:40,844 [INFO] EDA complete.
+2024-04-11 13:33:40,844 [INFO] Encoded column Gender_Churn added to dataframe.
+2024-04-11 13:33:40,844 [INFO] Encoded column Education_Level_Churn added to dataframe.
+2024-04-11 13:33:40,844 [INFO] Encoded column Marital_Status_Churn added to dataframe.
+2024-04-11 13:33:40,844 [INFO] Encoded column Income_Category_Churn added to dataframe.
+2024-04-11 13:33:40,844 [INFO] Encoded column Card_Category_Churn added to dataframe.
+2024-04-11 13:33:40,844 [INFO] Categorical encoding complete.
+2024-04-11 13:33:40,844 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-11 13:33:40,844 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-11 13:33:40,861 [INFO] Logistic Regression model trained successfully.
+2024-04-11 13:34:43,815 [INFO] Random Forest model trained successfully with GridSearchCV.
+2024-04-11 13:34:43,991 [INFO] Classification reports have been saved as images.
+2024-04-11 13:34:44,159 [INFO] Feature importance plot saved successfully to ./images/results\rf_feature_importance.png
+2024-04-11 13:34:44,257 [INFO] Models and reports have been saved successfully.
+2024-04-11 13:34:44,257 [INFO] Model training complete.

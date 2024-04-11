@@ -1,5 +1,7 @@
 # library doc string
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 import matplotlib
 from sklearn.metrics import RocCurveDisplay, classification_report
 from sklearn.model_selection import GridSearchCV
@@ -244,7 +246,44 @@ def classification_report_image(y_train,
     output:
              None
     '''
-    pass
+
+    try:
+        plt.rc('figure', figsize=(5, 5))
+
+        # Random Forest
+        plt.figure()
+        plt.text(0.01, 1.25, str('Random Forest Train'), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_rf)), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.6, str('Random Forest Test'), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_rf)), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.axis('off')
+        plt.savefig(os.path.join(
+            config['EDA']['results'], 'rf_classification_report.png'))
+        plt.close()
+
+        # Logistic Regression
+        plt.figure()
+        plt.text(0.01, 1.25, str('Logistic Regression Train'),
+                 {'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.6, str('Logistic Regression Test'), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {
+            'fontsize': 10}, fontproperties='monospace')
+        plt.axis('off')
+        plt.savefig(os.path.join(
+            config['EDA']['results'], 'lr_classification_report.png'))
+        plt.close()
+
+        logging.info("Classification reports have been saved as images.")
+    except Exception as e:
+        logging.error(
+            "Failed to generate or save classification report images: %s", e)
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -258,7 +297,24 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
-    pass
+    try:
+        importances = model.feature_importances_
+        indices = np.argsort(importances)[::-1]
+        names = [X_data.columns[i] for i in indices]
+
+        plt.figure(figsize=(20, 5))
+        plt.title("Feature Importance")
+        plt.ylabel('Importance')
+        plt.bar(range(X_data.shape[1]), importances[indices])
+        plt.xticks(range(X_data.shape[1]), names, rotation=90)
+        plt.savefig(output_pth)
+        plt.close()
+
+        logging.info(
+            "Feature importance plot saved successfully to %s", output_pth)
+    except Exception as e:
+        logging.error(
+            "Failed to generate or save feature importance plot: %s", e)
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -272,7 +328,66 @@ def train_models(X_train, X_test, y_train, y_test):
     output:
               None
     '''
-    pass
+    try:
+        # Pipeline for Logistic Regression
+        pipeline_lr = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', LogisticRegression(solver='lbfgs', max_iter=1000))
+        ])
+        pipeline_lr.fit(X_train, y_train)
+        logging.info("Logistic Regression model trained successfully.")
+
+        # Random Forest doesn't necessarily benefit from scaling, but we include it for consistency
+        pipeline_rf = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', RandomForestClassifier(random_state=42))
+        ])
+        # Setting up parameter grid for GridSearchCV, adapting for use with a pipeline
+        param_grid_rf = {
+            'classifier__n_estimators': [200, 500],
+            'classifier__max_features': ['sqrt', 'log2'],
+            'classifier__max_depth': [4, 5, 100],
+            'classifier__criterion': ['gini', 'entropy']
+        }
+        cv_rfc = GridSearchCV(estimator=pipeline_rf,
+                              param_grid=param_grid_rf, cv=5)
+        cv_rfc.fit(X_train, y_train)
+        logging.info(
+            "Random Forest model trained successfully with GridSearchCV.")
+
+        # Generate and save classification reports
+        y_train_preds_lr = pipeline_lr.predict(X_train)
+        y_test_preds_lr = pipeline_lr.predict(X_test)
+        y_train_preds_rf = cv_rfc.best_estimator_.predict(X_train)
+        y_test_preds_rf = cv_rfc.best_estimator_.predict(X_test)
+        classification_report_image(
+            y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf)
+
+        # Feature importance plot for Random Forest
+        # Access the classifier attribute of the best estimator in the pipeline
+        feature_importance_plot(cv_rfc.best_estimator_['classifier'], X_train, os.path.join(
+            config['EDA']['results'], 'rf_feature_importance.png'))
+
+        # Save models
+        joblib.dump(cv_rfc.best_estimator_, os.path.join(
+            config['models']['path'], 'rfc_model.pkl'))
+        joblib.dump(pipeline_lr, os.path.join(
+            config['models']['path'], 'logistic_model.pkl'))
+
+        logging.info("Models and reports have been saved successfully.")
+    except Exception as e:
+        logging.error("Model training or saving failed: %s", e)
+
+
+# Load the dataset
+df = pd.read_csv(r'.\data\bank_data.csv')
+
+# Generate a representative sample of size 100
+# Assuming the data is large enough and using a random state for reproducibility
+sample_df = df.sample(n=1000, random_state=42)
+
+# Optionally, save the sample to a new CSV file
+sample_df.to_csv(r'.\data\test_bank_data.csv', index=False)
 
 
 if __name__ == '__main__':
@@ -300,6 +415,10 @@ if __name__ == '__main__':
             df_encoded, response)
         logging.info(
             "Feature engineering and data splitting completed successfully.")
+
+        # Train models
+        train_models(X_train, X_test, y_train, y_test)
+        logging.info("Model training complete.")
 
     except Exception as e:
         logging.error("Error in main execution: %s", e)

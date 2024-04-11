@@ -6,10 +6,11 @@ logging:
   filename_test: "./logs/churn_library_test.log"
 
 data:
-  csv_path: "./data/bank_data.csv"
+  csv_path: "./data/test_bank_data.csv"
 
 EDA:
   path: "./images/eda"
+  results: "./images/results"
 
 categories:
   - Gender
@@ -39,3 +40,6 @@ features:
     - Marital_Status_Churn
     - Income_Category_Churn
     - Card_Category_Churn
+
+models:
+  path: "./models"
