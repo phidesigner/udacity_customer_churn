@@ -154,8 +154,47 @@ def test_perform_feature_engineering(loaded_test_data):
     logging.info("perform_feature_engineering function passed all checks.")
 
 
-@pytest.mark.skip(reason="not yet implemented")
-def test_train_models():
+@pytest.mark.parametrize("model_name, model_file", [
+    ("Random Forest", "rfc_model.pkl"),
+    ("Logistic Regression", "logistic_model.pkl")
+])
+def test_train_models(loaded_test_data, tmpdir, model_name, model_file):
     """
-    Placeholder for test_train_models test case.
+    Test the train_models function to ensure models and outputs are correctly saved.
     """
+    logging.info("Testing train_models function.")
+
+    # Temporary redirect model output
+    original_model_path = cls.config['models']['path']
+    cls.config['models']['path'] = str(tmpdir)
+
+    # Temporary redirect EDA/results output
+    original_results_path = cls.config['EDA']['results']
+    cls.config['EDA']['results'] = str(tmpdir)
+
+    category_lst = cls.config['categories']
+    df_encoded = cls.encoder_helper(loaded_test_data, category_lst)
+    X_train, X_test, y_train, y_test = cls.perform_feature_engineering(
+        df_encoded, 'Churn')
+
+    cls.train_models(X_train, X_test, y_train, y_test)
+
+    # Check if model is saved
+    model_path = os.path.join(str(tmpdir), model_file)
+    assert os.path.exists(model_path), f"{model_name} model file not found."
+
+    # Check if classification reports and feature importance plots are saved
+    expected_files = [
+        'rf_classification_report.png',
+        'lr_classification_report.png',
+        'rf_feature_importance.png'
+    ]
+    for expected_file in expected_files:
+        assert os.path.exists(os.path.join(str(tmpdir), expected_file)), \
+            f"{expected_file} not found in results."
+
+    logging.info("train_models successfully saved models and outputs.")
+
+    # Revert config changes
+    cls.config['models']['path'] = original_model_path
+    cls.config['EDA']['results'] = original_results_path

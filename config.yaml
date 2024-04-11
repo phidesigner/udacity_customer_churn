@@ -6,7 +6,7 @@ logging:
   filename_test: "./logs/churn_library_test.log"
 
 data:
-  csv_path: "./data/test_bank_data.csv"
+  csv_path: "./data/bank_data.csv"
 
 EDA:
   path: "./images/eda"
