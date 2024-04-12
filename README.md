@@ -35,7 +35,8 @@ The project repository includes various files organized as follows:
 - `/logs`: Contains log files for debugging and tracking the workflow execution.
 - `/models`: Contains serialized model files for logistic regression and random forest classifiers.
 - `/__pycache__`: Contains Python cache files for improved loading speeds.
-'''bash
+
+'''
 Folder PATH listing
 Volume serial number is 70A4-549A
 C:.
@@ -89,6 +90,7 @@ C:.
         churn_library.cpython-312.pyc
         test_churn_script_logging_and_tests.cpython-312-pytest-8.1.1.pyc
 '''
+
 ## Running Files
 
 To run the project, execute the `churn_library.py` script. Ensure that all dependencies specified in `environment.yml` are installed in your Python environment. Here's a high-level overview of what happens when you run the script:
