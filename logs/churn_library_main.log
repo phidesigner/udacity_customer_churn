@@ -1,31 +1,21 @@
-2024-04-11 13:33:39,193 [INFO] Data loaded successfully from ./data/test_bank_data.csv
-2024-04-11 13:33:39,194 [INFO] Data import complete.
-2024-04-11 13:33:39,198 [INFO] 'Churn' column creation complete.
-2024-04-11 13:33:39,245 [INFO] Descriptive Statistics:
-         Unnamed: 0     CLIENTNUM  ...  Avg_Utilization_Ratio        Churn
-count   1000.000000  1.000000e+03  ...            1000.000000  1000.000000
-mean    5062.059000  7.400859e+08  ...               0.288387     0.144000
-std     3030.576176  3.697478e+07  ...               0.279884     0.351265
-min        0.000000  7.080951e+08  ...               0.000000     0.000000
-25%     2420.250000  7.130833e+08  ...               0.037000     0.000000
-50%     5094.000000  7.181976e+08  ...               0.192000     0.000000
-75%     7880.250000  7.782439e+08  ...               0.526750     0.000000
-max    10116.000000  8.274429e+08  ...               0.973000     1.000000
-
-[8 rows x 17 columns]
-2024-04-11 13:33:40,844 [INFO] EDA performed and plots saved.
-2024-04-11 13:33:40,844 [INFO] EDA complete.
-2024-04-11 13:33:40,844 [INFO] Encoded column Gender_Churn added to dataframe.
-2024-04-11 13:33:40,844 [INFO] Encoded column Education_Level_Churn added to dataframe.
-2024-04-11 13:33:40,844 [INFO] Encoded column Marital_Status_Churn added to dataframe.
-2024-04-11 13:33:40,844 [INFO] Encoded column Income_Category_Churn added to dataframe.
-2024-04-11 13:33:40,844 [INFO] Encoded column Card_Category_Churn added to dataframe.
-2024-04-11 13:33:40,844 [INFO] Categorical encoding complete.
-2024-04-11 13:33:40,844 [INFO] Feature engineering and data splitting completed successfully.
-2024-04-11 13:33:40,844 [INFO] Feature engineering and data splitting completed successfully.
-2024-04-11 13:33:40,861 [INFO] Logistic Regression model trained successfully.
-2024-04-11 13:34:43,815 [INFO] Random Forest model trained successfully with GridSearchCV.
-2024-04-11 13:34:43,991 [INFO] Classification reports have been saved as images.
-2024-04-11 13:34:44,159 [INFO] Feature importance plot saved successfully to ./images/results\rf_feature_importance.png
-2024-04-11 13:34:44,257 [INFO] Models and reports have been saved successfully.
-2024-04-11 13:34:44,257 [INFO] Model training complete.
+2024-04-12 14:59:24,710 [INFO] Data loaded successfully from ./data/bank_data.csv
+2024-04-12 14:59:24,710 [INFO] Data import complete.
+2024-04-12 14:59:24,718 [INFO] Churn column created successfully.
+2024-04-12 14:59:24,718 [INFO] 'Churn' column creation complete.
+2024-04-12 14:59:25,802 [INFO] EDA performed and plots saved.
+2024-04-12 14:59:25,802 [INFO] EDA complete.
+2024-04-12 14:59:25,807 [INFO] Encoded column Gender_Churn added to dataframe.
+2024-04-12 14:59:25,808 [INFO] Encoded column Education_Level_Churn added to dataframe.
+2024-04-12 14:59:25,809 [INFO] Encoded column Marital_Status_Churn added to dataframe.
+2024-04-12 14:59:25,811 [INFO] Encoded column Income_Category_Churn added to dataframe.
+2024-04-12 14:59:25,813 [INFO] Encoded column Card_Category_Churn added to dataframe.
+2024-04-12 14:59:25,813 [INFO] Categorical encoding complete.
+2024-04-12 14:59:25,818 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-12 14:59:25,818 [INFO] Feature engineering and data splitting completed successfully.
+2024-04-12 14:59:25,835 [INFO] Logistic Regression model trained successfully.
+2024-04-12 15:04:10,863 [INFO] Random Forest model trained successfully with GridSearchCV.
+2024-04-12 15:04:11,537 [INFO] Classification reports have been saved as images.
+2024-04-12 15:04:11,754 [INFO] Feature importance plot saved successfully to ./images/results\rf_feature_importance.png
+2024-04-12 15:04:12,225 [INFO] ROC curves have been saved to ./images/results\roc_curves.png
+2024-04-12 15:04:12,226 [INFO] Models and reports have been saved successfully.
+2024-04-12 15:04:12,229 [INFO] Model training complete.

@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, RocCurveDisplay
 import yaml
 
 # Set seaborn style
@@ -344,6 +344,30 @@ def feature_importance_plot(model, X_data, output_pth):
         raise
 
 
+def plot_roc_curves(model_lr, model_rf, X_test, y_test, output_path):
+    """
+    Plots ROC curves for both logistic regression and random forest models.
+
+    Args:
+    model_lr : Trained logistic regression model.
+    model_rf : Trained random forest model.
+    X_test : Test features DataFrame.
+    y_test : Test target series.
+    output_path : Path to save the ROC plot.
+
+    """
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    RocCurveDisplay.from_estimator(model_rf, X_test, y_test, ax=ax,
+                                   name='Random Forest', alpha=0.8)
+    RocCurveDisplay.from_estimator(model_lr, X_test, y_test, ax=ax,
+                                   name='Logistic Regression', alpha=0.8)
+    plt.title('Receiver Operating Characteristic (ROC) Curves')
+    plt.savefig(output_path)
+    plt.close()
+    logging.info("ROC curves have been saved to %s", output_path)
+
+
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
@@ -401,7 +425,12 @@ def train_models(X_train, X_test, y_train, y_test):
         joblib.dump(pipeline_lr, os.path.join(
             config['models']['path'], 'logistic_model.pkl'))
 
+        # Plot and save ROC curves
+        plot_roc_curves(pipeline_lr, cv_rfc.best_estimator_, X_test, y_test,
+                        os.path.join(config['EDA']['results'], 'roc_curves.png'))
+
         logging.info("Models and reports have been saved successfully.")
+
     except Exception as ex:
         logging.error("Model training or saving failed: %s", ex)
         raise
@@ -437,5 +466,5 @@ if __name__ == '__main__':
         train_models(X_train, X_test, y_train, y_test)
         logging.info("Model training complete.")
 
-    except Exception as ex:
-        logging.error("Error in main execution: %s", ex)
+    except Exception as e:
+        logging.error("Error in main execution: %s", e)
