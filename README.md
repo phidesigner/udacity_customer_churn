@@ -106,11 +106,12 @@ You can run the project by navigating to the project directory and running:
 ```bash
 python churn_library.py
 ```
+You can run the tests by navigating to the project directory and running:
 
-Ensure that the Python environment is activated and all dependencies are installed. For detailed instructions, refer to `Guide.ipynb`.
+```bash
+pytest
+```
 
----
-
-For further assistance on how to use and navigate this project, please refer to the `Guide.ipynb` notebook within this repository.
+Ensure that the Python CONDA environment is activated and all dependencies are installed. For detailed instructions, refer to `Guide.ipynb`.
 
 ---
