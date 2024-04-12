@@ -36,58 +36,58 @@ The project repository includes various files organized as follows:
 - `/models`: Contains serialized model files for logistic regression and random forest classifiers.
 - `/__pycache__`: Contains Python cache files for improved loading speeds.
 
-  Folder PATH listing
-  Volume serial number is 70A4-549A
-  C:.
-  |   churn_library.py
-  |   churn_notebook.ipynb
-  |   config.yaml
-  |   constants.py
-  |   environment.yml
-  |   Guide.ipynb
-  |   LICENSE
-  |   README.md
-  |   test_churn_script_logging_and_tests.py
-  |
-  +---.pytest_cache
-  |   |   .gitignore
-  |   |   CACHEDIR.TAG
-  |   |   README.md
-  |   |
-  |   \---v
-  |       \---cache
-  |               lastfailed
-  |               nodeids
-  |               stepwise
-  |
-  +---data
-  |       bank_data.csv
-  |       test_bank_data.csv
-  |
-  +---images
-  |   +---eda
-  |   |       churn_histogram.png
-  |   |       correlation_heatmap.png
-  |   |       customer_age_histogram.png
-  |   |       marital_status_distribution.png
-  |   |       total_trans_ct_distribution.png
-  |   |
-  |   \---results
-  |           rf_classification_report.png
-  |           rf_feature_importance.png
-  |
-  +---logs
-  |       churn_library_main.log
-  |       churn_library_test.log
-  |
-  +---models
-  |       logistic_model.pkl
-  |       rfc_model.pkl
-  |
-  \---__pycache__
-          churn_library.cpython-312-pytest-8.1.1.pyc
-          churn_library.cpython-312.pyc
-          test_churn_script_logging_and_tests.cpython-312-pytest-8.1.1.pyc
+Folder PATH listing
+Volume serial number is 70A4-549A
+C:.
+|   churn_library.py
+|   churn_notebook.ipynb
+|   config.yaml
+|   constants.py
+|   environment.yml
+|   Guide.ipynb
+|   LICENSE
+|   README.md
+|   test_churn_script_logging_and_tests.py
+|
++---.pytest_cache
+|   |   .gitignore
+|   |   CACHEDIR.TAG
+|   |   README.md
+|   |
+|   \---v
+|       \---cache
+|               lastfailed
+|               nodeids
+|               stepwise
+|
++---data
+|       bank_data.csv
+|       test_bank_data.csv
+|
++---images
+|   +---eda
+|   |       churn_histogram.png
+|   |       correlation_heatmap.png
+|   |       customer_age_histogram.png
+|   |       marital_status_distribution.png
+|   |       total_trans_ct_distribution.png
+|   |
+|   \---results
+|           rf_classification_report.png
+|           rf_feature_importance.png
+|
++---logs
+|       churn_library_main.log
+|       churn_library_test.log
+|
++---models
+|       logistic_model.pkl
+|       rfc_model.pkl
+|
+\---__pycache__
+        churn_library.cpython-312-pytest-8.1.1.pyc
+        churn_library.cpython-312.pyc
+        test_churn_script_logging_and_tests.cpython-312-pytest-8.1.1.pyc
 
 ## Running Files
 
