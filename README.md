@@ -1,6 +1,7 @@
 
 ### README.md for the Predict Customer Churn Project
-
+By: Ivan Diaz
+Date: 12/04/24
 ---
 
 # Predict Customer Churn

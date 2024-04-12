@@ -1,5 +1,7 @@
 """
 A library for churn prediction analysis, incorporating best practices
+By: Ivan Diaz
+Date: 12/04/24
 """
 
 import os
