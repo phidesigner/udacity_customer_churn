@@ -1,5 +1,8 @@
 """This module contains tests for the churn prediction library
-functionality."""
+functionality.
+By: Ivan Diaz
+Date: 12/04/24
+"""
 
 import logging
 import os
